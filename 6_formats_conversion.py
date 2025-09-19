@@ -1,8 +1,7 @@
 """
 Скрипт демонструє конвертацію даних між форматами CSV, JSON та XML
-з використанням патерну 'Адаптер' та 'Абстрактний базовий клас'
+використовуючи патерн проектування 'Адаптер' та 'Абстрактний базовий клас'.
 """
-
 import csv
 import json
 import xml.etree.ElementTree as ET
@@ -11,50 +10,50 @@ from abc import ABC, abstractmethod
 
 
 class Converter(ABC):
-    """Абстрактний базовий клас для конвертерів."""
+    """ Абстрактний базовий клас для конвертерів. """
 
     @abstractmethod
     def convert_to_json(self, input_path: str, output_path: str):
-        """ Абстрактний метод конвертації у JSON."""
+        """ Абстрактний метод для конвертації у JSON. """
         pass
 
     @abstractmethod
     def convert_from_json(self, input_path: str, output_path: str):
-        """ Абстрактний метод конвертації з JSON."""
+        """ Абстрактний метод для конвертації з JSON. """
         pass
 
 
 class CSVtoJSON(Converter):
-    """Конвертує CSV-файл до JSON та навпаки."""
+    """ Клас, що конвертує CSV-файл до JSON та навпаки. """
 
     def convert_to_json(self, input_path: str, output_path: str):
-        """Конвертує CSV до JSON."""
+        """ Конвертує CSV до JSON. """
         data = []
         try:
             with open(input_path, 'r', newline='', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     data.append(row)
-            with open(output_path, 'w', encoding='utf-8') as jsonfile:
-                json.dump(data, jsonfile, indent=4)
-            print(f"✅ Успішно конвертовано {input_path} до {output_path}")
+            with open(output_path, 'w', newline='', encoding='utf-8') as jsonfile:
+                json.dump(data, jsonfile, ensure_ascii=False, indent=4)
+            print(f"Успішно конвертовано {input_path} до {output_path}")
         except FileNotFoundError:
-            print(f"❌ Помилка: Файл {input_path} не знайдено.")
-        except Exception as e:
-            print(f"❌ Сталася помилка при конвертації CSV до JSON: {e}")
+            print(f"Помилка: Файл {input_path} не знайдено")
+        except Exception as ex:
+            print(f"Сталася помилка при конвертації CSV до JSON: {ex}")
 
     def convert_from_json(self, input_path: str, output_path: str):
-        """Конвертує JSON до CSV."""
+        """ Конвертує JSON до CSV. """
         try:
             with open(input_path, 'r', encoding='utf-8') as jsonfile:
                 data = json.load(jsonfile)
 
             if not data:
-                print("❌ Помилка: JSON-файл порожній.")
+                print("Помилка: JSON файл порожній.")
                 return
 
             if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
-                print("❌ Помилка: Очікується список словників.")
+                print("Помилка: Очікується список словників.")
                 return
 
             keys = data[0].keys()
@@ -62,18 +61,18 @@ class CSVtoJSON(Converter):
                 writer = csv.DictWriter(csvfile, fieldnames=keys)
                 writer.writeheader()
                 writer.writerows(data)
-            print(f"✅ Успішно конвертовано {input_path} до {output_path}")
+            print(f"Успішно конвертовано {input_path} до {output_path}.")
         except FileNotFoundError:
-            print(f"❌ Помилка: Файл {input_path} не знайдено.")
-        except Exception as e:
-            print(f"❌ Сталася помилка при конвертації JSON до CSV: {e}")
+            print(f"Помилка: Файл {input_path} не знайдено.")
+        except Exception as ex:
+            print(f"Сталася помилка при конвертації JSON до CSV: {ex}")
 
 
 class XMLConverter(Converter):
-    """Конвертує XML-файл до JSON та навпаки."""
+    """ Клас, що конвертує XML-файл до JSON та навпаки. """
 
     def convert_to_json(self, input_path: str, output_path: str):
-        """Конвертує XML до JSON."""
+        """ Конвертує XML до JSON. """
         try:
             tree = ET.parse(input_path)
             root = tree.getroot()
@@ -81,22 +80,22 @@ class XMLConverter(Converter):
 
             with open(output_path, 'w', encoding='utf-8') as jsonfile:
                 json.dump(data, jsonfile, indent=4)
-            print(f"✅ Успішно конвертовано {input_path} до {output_path}")
+            print(f"Успішно конвертовано {input_path} до {output_path}.")
         except FileNotFoundError:
-            print(f"❌ Помилка: Файл {input_path} не знайдено.")
-        except ET.ParseError as e:
-            print(f"❌ Помилка парсингу XML: {e}")
-        except Exception as e:
-            print(f"❌ Сталася помилка при конвертації XML до JSON: {e}")
+            print(f"Помилка: Файл {input_path} не знайдено.")
+        except ET.ParseError as ex:
+            print(f"Помилка парсингу XML: {ex}")
+        except Exception as ex:
+            print(f"Сталася помилка при конвертації XML до JSON: {ex}")
 
     def convert_from_json(self, input_path: str, output_path: str):
-        """Конвертує JSON до XML."""
+        """ Конвертує JSON до XML. """
         try:
             with open(input_path, 'r', encoding='utf-8') as jsonfile:
                 data = json.load(jsonfile)
 
             if not data:
-                print("❌ Помилка: JSON-файл порожній.")
+                print("Помилка: JSON-файл порожній.")
                 return
 
             # Визначаємо ім'я кореневого елемента
@@ -106,14 +105,14 @@ class XMLConverter(Converter):
 
             tree = ET.ElementTree(root)
             tree.write(output_path, encoding='utf-8', xml_declaration=True)
-            print(f"✅ Успішно конвертовано {input_path} до {output_path}")
+            print(f"Успішно конвертовано {input_path} до {output_path}")
         except FileNotFoundError:
-            print(f"❌ Помилка: Файл {input_path} не знайдено.")
-        except Exception as e:
-            print(f"❌ Сталася помилка при конвертації JSON до XML: {e}")
+            print(f"Помилка: Файл {input_path} не знайдено.")
+        except Exception as ex:
+            print(f"Сталася помилка при конвертації JSON до XML: {ex}")
 
     def _xml_to_dict(self, element):
-        """Допоміжна функція для рекурсивного перетворення XML-елементів у словник."""
+        """ Допоміжна функція для рекурсивного перетворення XML-елементів у словник. """
         result = {}
         children = list(element)
 
@@ -129,7 +128,7 @@ class XMLConverter(Converter):
             return result
 
     def _dict_to_xml(self, data, parent_element):
-        """Допоміжна функція для рекурсивного перетворення словника в XML-елементи."""
+        """ Допоміжна функція для рекурсивного перетворення словника в XML-елементи. """
         if isinstance(data, dict):
             for key, value in data.items():
                 element = ET.SubElement(parent_element, key)
@@ -144,39 +143,39 @@ class XMLConverter(Converter):
 
 
 def _create_test_files():
-    """Створює тестові CSV та XML файли."""
-    print("🚀 Створення тестових файлів...")
-    # CSV файл
-    with open('users.csv', 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
+    """ Створює тестові CSV та XML файли для демонстрації. """
+    print("Створення текстових файлів....")
+    # CSv файл
+    with open('users.csv', 'w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
         writer.writerow(['name', 'age', 'city'])
         writer.writerow(['Alice', '30', 'New York'])
         writer.writerow(['Bob', '25', 'London'])
 
-    # XML файл
+        # XML файл
     with open('users.xml', 'w', encoding='utf-8') as f:
         f.write(
             '<users><user><name>Charlie</name><age>45</age></user><user><name>Dana</name><age>35</age></user></users>')
 
-    # JSON файл для зворотного перетворення
+        # JSON файл для зворотного перетворення
     with open('users_from_xml.json', 'w', encoding='utf-8') as f:
         json.dump({"users": [{"user": {"name": "Eve", "age": 28}}, {"user": {"name": "Frank", "age": 42}}]}, f,
                   indent=4)
-    print("✅ Тестові файли успішно створено.")
+    print("Тестові файли успішно створено.")
 
 
 def _cleanup_test_files():
-    """Видаляє усі створені тестові файли."""
-    print("\n🧹 Видалення тестових файлів...")
+    """ Видаляє усі створені тестові файли. """
+    print("\n Видалення тестових файлів....")
     files_to_remove = ['users.csv', 'users.json', 'users.xml', 'users_back.csv', 'users_from_xml.json',
                        'users_to_xml.xml']
     for file_path in files_to_remove:
         if os.path.exists(file_path):
             os.remove(file_path)
-            print(f"🗑️ Видалено: {file_path}")
+            print(f"Видалено: {file_path}")
         else:
-            print(f"🤔 Файл {file_path} не знайдено, пропущено.")
-    print("✅ Очищення завершено.")
+            print(f"Файл {file_path} не знайдено, пропущено.")
+    print("Очищення завершено")
 
 
 def main():
@@ -197,15 +196,15 @@ def main():
 
     # Запит на видалення файлів
     while True:
-        choice = input("\nВи бажаєте видалити всі створені файли? (y/n): ").strip().lower()
-        if choice == 'y':
+        choice = input("\nБажаєте видалити згенеровані файли? (Y/N): ").strip().upper()
+        if choice == 'Y':
             _cleanup_test_files()
             break
-        elif choice == 'n':
-            print("❌ Файли залишено. Робота завершена.")
+        elif choice == 'N':
+            print("Файли залишено. Робота завершена.")
             break
         else:
-            print("Будь ласка, введіть 'y' або 'n'.")
+            print("Будь ласка, введіть 'Y' або 'N'.")
 
 
 if __name__ == '__main__':
