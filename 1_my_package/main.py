@@ -1,3 +1,8 @@
+"""
+Головний скрипт, що демонструє використання функцій з
+'math_utils.py' та 'string_utils.py'
+"""
+
 # Імпортуємо функції з модулів
 from math_utils import *
 from string_utils import *

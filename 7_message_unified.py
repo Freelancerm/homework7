@@ -1,10 +1,17 @@
+"""
+Скрипт що демонструє використання патерну проектування 'Адаптер'
+для уніфікації інтерфейсів різних сервісів відправки повідомлень
+(SMS, Email, Push).
+"""
+
 from abc import ABC, abstractmethod
 
 
-# Інтерфейс msgSender
+# Інтерфейс (абстрактний базовий клас) для відправника повідомлень
 class MessageSender(ABC):
     @abstractmethod
     def send_message(self, msg: str, **kwargs):
+        """ Абстрактний метод для відправки повідомлення. """
         pass
 
 
@@ -12,6 +19,7 @@ class MessageSender(ABC):
 class SMSService:
     @staticmethod
     def send_sms(phone_number: str, msg: str):
+        """ Відправляє SMS-повідомлення. """
         print(f"Відправка SMS на {phone_number}: {msg}")
         return True
 
@@ -19,6 +27,7 @@ class SMSService:
 class EmailService:
     @staticmethod
     def send_email(email_address: str, msg: str):
+        """ Відправляє Email-повідомлення. """
         print(f"Відправка Email на {email_address}: {msg}")
         return True
 
@@ -26,17 +35,20 @@ class EmailService:
 class PushService:
     @staticmethod
     def send_push(device_id: str, msg: str):
+        """ Відправляє Push-повідомлення. """
         print(f"Відправка Push-повідомлення на пристрій {device_id}: {msg}")
         return True
 
 
-# Адаптери
+# Класи-адаптери, які обгортають існуючі сервіси та реалізують єдиний інтерфейс MessageSender
 class SMSAdapter(MessageSender):
     def __init__(self, _sms_service: SMSService, _phone_number: str):
+        """ Метод-ініціалізатор """
         self.sms_service = _sms_service
         self.phone_number = _phone_number
 
     def send_message(self, msg: str, **kwargs):
+        """ Адаптований метод для відправки SMS. """
         try:
             self.sms_service.send_sms(self.phone_number, msg)
             return True
@@ -51,6 +63,7 @@ class EmailAdapter(MessageSender):
         self.email_address = _email_address
 
     def send_message(self, msg: str, **kwargs):
+        """ Адаптований метод для відправки Email. """
         try:
             self.email_service.send_email(self.email_address, msg)
             return True
@@ -65,6 +78,7 @@ class PushAdapter(MessageSender):
         self.device_id = _device_id
 
     def send_message(self, msg: str, **kwargs):
+        """ Адаптований метод для відправки Push. """
         try:
             self.push_service.send_push(self.device_id, msg)
             return True
@@ -76,16 +90,18 @@ class PushAdapter(MessageSender):
 # Система відправки повідомлень
 class Messenger:
     def __init__(self, _adapters: list[MessageSender]):
+        """ Ініціалізує месенджер зі списком адаптерів. """
         self.adapters = _adapters
 
     def send_to_all(self, msg: str):
+        """ Відправляє повідомлення через усі доступні адаптери. """
         print(f"\n--- Відправка через усі доступні сервіси ---")
         for adapter in self.adapters:
             adapter.send_message(msg)
         print("--- Відправка завершена ---\n")
 
 
-# Використання
+# Використання: створюємо сервіси, адаптери, і демонструємо їх роботу
 sms_service = SMSService()
 email_service = EmailService()
 push_service = PushService()
@@ -100,5 +116,6 @@ sms_service.send_sms(phone_number="+380123456789", msg=message_text)
 email_service.send_email(email_address="user@example.com", msg=message_text)
 push_service.send_push(device_id="device123", msg=message_text)
 
+# Використання класу-агрегатора, який працює з уніфікованими адаптерами
 all_senders = Messenger([sms_adapter, email_adapter, push_adapter])
 all_senders.send_to_all("Друге текстове повідомлення. Тепер усім!")

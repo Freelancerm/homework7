@@ -1,3 +1,8 @@
+"""
+Скрипт демонструє завантаження веб-сторінки за допомогою зовнішнього пакету
+'requests' та роботу з файловою системою для збереження і видалення файлів.
+"""
+
 import requests
 import os
 
@@ -31,7 +36,9 @@ try:
 
         print(f"Вміст сторінки успішно записано у файлі '{filename}'")
 
-        print_answer = input(f"Відобразити збережений текст у файлі: '{filename}'? (відповідь має бути y або n): ").lower()
+        # Запит на відображення вмісту файлу
+        print_answer = input(
+            f"Відобразити збережений текст у файлі: '{filename}'? (відповідь має бути y або n): ").lower()
         if print_answer == 'y':
             with open(file_path, 'r', encoding='utf-8') as file:
                 print(file.read())
@@ -41,6 +48,7 @@ try:
             print(
                 f"Сталася помилка. Ваша відпоідь '{print_answer}' не є корректною. Відповідь повинна бути або 'y' або 'n'")
 
+        # Запит на видалення файлу
         delete_answer = input(f"Видалити файл '{filename}'? (відповідь має бути y або n): ").lower()
         if delete_answer == 'y':
             os.remove(file_path)
@@ -54,6 +62,7 @@ try:
     else:
         print(f"Не вдалося завантажити сторінку. Статус код: {response.status_code}")
 
+# Обробка винятків при виникненні проблем з мережевим запитом
 except requests.exceptions.RequestException as exception:
     print(f"Сталася помилка. Детальний опис : {exception}")
 print("--- Программу завершено ---")
